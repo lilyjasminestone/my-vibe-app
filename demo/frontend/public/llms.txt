@@ -1,0 +1,113 @@
+# Markdown-Flow Playground
+
+> An interactive platform for testing and developing Markdown-Flow components with AI-powered content generation, built with FastAPI and Next.js.
+
+Markdown-Flow Playground is a full-stack application that provides a comprehensive environment for working with Markdown-Flow documents. It features real-time parsing, variable extraction, prompt building, and streaming LLM integration for dynamic content generation.
+
+## Core Documentation
+
+- [API Documentation](/api/v1/docs): Interactive API documentation with all endpoints
+- [Markdown-Flow Specification](/docs/markdown-flow): Complete specification for Markdown-Flow format
+- [Getting Started Guide](/docs/getting-started): Quick start guide for developers
+- [Template Library](/templates): Pre-built templates for common scenarios
+
+## Key Features
+
+### Markdown-Flow Processing
+- Automatic document segmentation with customizable delimiters
+- Variable extraction supporting `{{variable}}` and `${{variable}}` syntax
+- Interactive blocks with `?[variable...prompt]` format
+- Preserved content blocks with `===content===` format
+- Context-aware prompt building for LLM integration
+
+### API Endpoints
+
+#### Document Processing
+- `POST /api/v1/split-segments`: Split markdown into segments
+- `POST /api/v1/extract-variables`: Extract variables from document
+- `POST /api/v1/build-prompt`: Build LLM-ready prompts
+- `POST /api/v1/generate`: Stream content generation via SSE
+
+#### LLM Integration
+- `GET /api/v1/llm/config`: Get current LLM configuration
+- `POST /api/v1/llm/chat`: Synchronous chat completion
+- `POST /api/v1/llm/chat/stream`: Streaming chat with SSE
+
+## Technical Architecture
+
+### Backend Stack
+- **Framework**: FastAPI with Python 3.8+
+- **Architecture**: Layered design (API -> Service -> Library)
+- **LLM Client**: OpenAI-compatible API support
+- **Package**: Independent `markdown-flow` Python package
+- **Streaming**: Server-Sent Events (SSE) for real-time generation
+
+### Frontend Stack
+- **Framework**: Next.js 15 with App Router
+- **UI Components**: shadcn/ui with Radix UI primitives
+- **Styling**: Tailwind CSS v4
+- **State Management**: React hooks with optimized re-renders
+- **Markdown Rendering**: ReactMarkdown with syntax highlighting
+
+## Development Setup
+
+### Prerequisites
+- Python 3.8+ for backend
+- Node.js 18+ for frontend
+- OpenAI-compatible API key (e.g., DeepSeek, OpenAI)
+
+### Quick Start
+```bash
+# Backend setup
+pip install -r requirements.txt
+cp .env.example .env
+./dev.sh
+
+# Frontend setup
+cd frontend
+npm install
+npm run dev
+```
+
+### Environment Variables
+- `LLM_BASE_URL`: LLM API endpoint
+- `LLM_API_KEY`: API authentication key
+- `LLM_MODEL`: Model identifier
+- `NEXT_PUBLIC_PLAYGROUND_URL`: Backend API URL
+
+## Usage Examples
+
+### Basic Variable Extraction
+```markdown
+Hello {{name}}, welcome to {{course}}!
+```
+
+### Interactive Blocks
+```markdown
+?[username...What is your name?]
+?[topic|AI|Web Development|Data Science]
+```
+
+### Preserved Content
+```markdown
+===
+This content will be preserved exactly as written
+===
+```
+
+## Optional
+
+### Additional Resources
+- [Contributing Guide](/docs/contributing): How to contribute to the project
+- [API Client Libraries](/docs/clients): Available client SDKs
+- [Deployment Guide](/docs/deployment): Production deployment instructions
+- [Security Considerations](/docs/security): API authentication and rate limiting
+
+### Related Projects
+- [markdown-flow-ui](https://www.npmjs.com/package/markdown-flow-ui): React UI components
+- [dev-markdown-flow](https://test.pypi.org/project/dev-markdown-flow/): Python package
+- [remark-flow](https://www.npmjs.com/package/remark-flow): Remark plugin
+
+### Community
+- [GitHub Issues](https://github.com/ai-shifu/markdown-flow-playground/issues): Bug reports and feature requests
+- [Discussions](https://github.com/ai-shifu/markdown-flow-playground/discussions): Community forum

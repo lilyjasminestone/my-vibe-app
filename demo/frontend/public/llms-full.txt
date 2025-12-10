@@ -1,0 +1,640 @@
+# Markdown-Flow Playground - Complete Documentation
+
+> An interactive platform for testing and developing Markdown-Flow components with AI-powered content generation, built with FastAPI and Next.js.
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Markdown-Flow Specification](#markdown-flow-specification)
+3. [API Reference](#api-reference)
+4. [Frontend Architecture](#frontend-architecture)
+5. [Backend Architecture](#backend-architecture)
+6. [Development Guide](#development-guide)
+7. [Deployment](#deployment)
+
+## Overview
+
+Markdown-Flow Playground is a full-stack application that provides a comprehensive environment for working with Markdown-Flow documents. It features real-time parsing, variable extraction, prompt building, and streaming LLM integration for dynamic content generation.
+
+### Core Features
+
+- **Document Parsing**: Automatically split Markdown documents into segments
+- **Variable Management**: Extract and validate variables in multiple formats
+- **LLM Integration**: Stream content generation through OpenAI-compatible APIs
+- **Template System**: Pre-built and customizable templates
+- **Real-time Preview**: Instant visualization of processed content
+
+## Markdown-Flow Specification
+
+### Document Structure
+
+Markdown-Flow documents are structured text files that combine static content with dynamic variables and interactive elements.
+
+### Segment Delimiters
+
+Documents can be split into segments using:
+- `---` (default delimiter)
+- Custom delimiters can be specified
+
+### Variable Syntax
+
+#### Basic Variables
+```markdown
+{{variable_name}}
+```
+
+#### Interactive Blocks
+```markdown
+?[%{{variable_name}}...Prompt text for the user]
+?[%{{choice_variable}}|Option 1|Option 2|Option 3]
+```
+
+#### Preserved Content Blocks
+```markdown
+===
+Content here is preserved exactly as written
+No processing or variable substitution
+===
+```
+
+### Processing Pipeline
+
+1. **Parse**: Split document into segments
+2. **Extract**: Identify all variables and interactive blocks
+3. **Validate**: Check variable completeness
+4. **Build**: Create prompts for LLM
+5. **Generate**: Stream content with variable substitution
+
+## API Reference
+
+### Base URL
+```
+http://localhost:8000/api/v1
+```
+
+### Authentication
+Currently no authentication required for local development. Production deployments should implement API key authentication.
+
+### Endpoints
+
+#### Document Processing
+
+##### Split Segments
+```http
+POST /api/v1/split-segments
+Content-Type: application/json
+
+{
+  "content": "markdown content here",
+  "delimiter": "---"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "segments": ["segment1", "segment2"]
+  }
+}
+```
+
+##### Extract Variables
+```http
+POST /api/v1/extract-variables
+Content-Type: application/json
+
+{
+  "content": "Hello {{name}}, welcome to {{course}}!"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "variables": ["name", "course"]
+  }
+}
+```
+
+##### Build Prompt
+```http
+POST /api/v1/build-prompt
+Content-Type: application/json
+
+{
+  "content": "markdown content",
+  "segment_index": 0,
+  "variables": {
+    "name": "Alice",
+    "course": "AI 101"
+  },
+  "context": [
+    {"role": "system", "content": "You are a helpful assistant"}
+  ]
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "prompt": "Processed prompt for LLM",
+    "messages": [...]
+  }
+}
+```
+
+##### Generate Content (SSE)
+```http
+POST /api/v1/generate
+Content-Type: application/json
+
+{
+  "content": "markdown content",
+  "segment_index": 0,
+  "variables": {
+    "name": "Alice"
+  },
+  "additionalPrompt": "Be concise",
+  "model": "gpt-4"
+}
+
+Response: Server-Sent Events stream
+data: {"content": "Generated ", "type": "content"}
+data: {"content": "text ", "type": "content"}
+data: {"content": "here", "type": "content"}
+data: {"type": "done"}
+```
+
+#### LLM Configuration
+
+##### Get Config
+```http
+GET /api/v1/llm/config
+
+Response:
+{
+  "success": true,
+  "data": {
+    "base_url": "https://api.openai.com/v1",
+    "model": "gpt-4",
+    "available_models": ["gpt-4", "gpt-3.5-turbo"]
+  }
+}
+```
+
+##### Chat Completion
+```http
+POST /api/v1/llm/chat
+Content-Type: application/json
+
+{
+  "messages": [
+    {"role": "user", "content": "Hello"}
+  ],
+  "model": "gpt-4",
+  "temperature": 0.7
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "content": "Hi! How can I help you?",
+    "usage": {...}
+  }
+}
+```
+
+## Frontend Architecture
+
+### Technology Stack
+
+- **Framework**: Next.js 15 with App Router
+- **UI Library**: shadcn/ui components
+- **Styling**: Tailwind CSS v4
+- **State Management**: React hooks
+- **Icons**: Lucide React
+
+### Project Structure
+
+```
+frontend/
+├── src/
+│   ├── app/           # Next.js app router pages
+│   ├── components/    # React components
+│   │   ├── ui/       # shadcn/ui components
+│   │   └── ...       # Feature components
+│   ├── lib/          # Utilities and API clients
+│   └── styles/       # Global styles
+├── public/           # Static assets
+└── package.json
+```
+
+### Key Components
+
+#### MarkdownFlowEditor
+Main editor component for Markdown-Flow content with syntax highlighting and variable detection.
+
+#### PlaygroundWrapper
+Wrapper component that integrates with markdown-flow-ui for real-time execution.
+
+#### VariableInput
+Dynamic form inputs for variable values with validation.
+
+#### ShareDialog
+Sharing functionality with URL generation and clipboard support.
+
+### State Management
+
+- Local state with useState for UI interactions
+- Refs for form inputs to prevent re-renders
+- LocalStorage for persisting user content
+- SSE connection management for streaming
+
+## Backend Architecture
+
+### Technology Stack
+
+- **Framework**: FastAPI
+- **Language**: Python 3.8+
+- **Architecture**: Layered (API -> Service -> Library)
+- **Package Management**: pip with requirements.txt
+
+### Project Structure
+
+```
+├── app/
+│   ├── api/v1/       # API routes
+│   ├── services/     # Business logic
+│   ├── models/       # Data models
+│   ├── library/      # Reusable libraries
+│   ├── config/       # Configuration
+│   └── utils/        # Utilities
+├── packages/
+│   └── markdown-flow/ # Core package
+└── tests/            # Test suites
+```
+
+### Core Components
+
+#### MarkdownFlow Service
+Handles all Markdown-Flow operations including parsing, variable extraction, and prompt building.
+
+#### LLM Client
+OpenAI-compatible client for various LLM providers with streaming support.
+
+#### Response Handler
+Standardized API response format with error handling.
+
+### Configuration
+
+Environment variables (`.env` file):
+```bash
+# Application
+APP_NAME=Markdown-Flow
+DEBUG=true
+PORT=8000
+
+# LLM Configuration
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_API_KEY=your-key-here
+LLM_MODEL=gpt-4
+```
+
+## Development Guide
+
+### Prerequisites
+
+- Python 3.8 or higher
+- Node.js 18 or higher
+- Git
+
+### Backend Setup
+
+1. Clone repository
+```bash
+git clone https://github.com/your-org/markdown-flow-playground.git
+cd markdown-flow-playground
+```
+
+2. Create virtual environment
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+4. Configure environment
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+5. Run development server
+```bash
+./dev.sh
+# Or directly: fastapi dev main.py --reload
+```
+
+### Frontend Setup
+
+1. Navigate to frontend directory
+```bash
+cd frontend
+```
+
+2. Install dependencies
+```bash
+npm install
+```
+
+3. Configure environment
+```bash
+cp .env.example .env.local
+# Edit .env.local with your configuration
+```
+
+4. Run development server
+```bash
+npm run dev
+```
+
+### Testing
+
+#### Backend Tests
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=app
+
+# Run specific test file
+pytest tests/test_markdown_flow.py
+```
+
+#### Frontend Tests
+```bash
+cd frontend
+npm test
+```
+
+### Code Quality
+
+#### Backend
+```bash
+# Format code
+black .
+isort .
+
+# Lint code
+flake8
+
+# Type checking
+mypy app
+```
+
+#### Frontend
+```bash
+# Lint code
+npm run lint
+
+# Fix lint issues
+npm run lint:fix
+
+# Type checking
+npm run type-check
+```
+
+## Deployment
+
+### Docker Deployment
+
+1. Build image
+```bash
+docker build -t markdown-flow-playground .
+```
+
+2. Run container
+```bash
+docker run -p 8000:8000 \
+  -e LLM_API_KEY=your-key \
+  markdown-flow-playground
+```
+
+### Docker Compose
+
+```yaml
+version: '3.8'
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_API_KEY=${LLM_API_KEY}
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_PLAYGROUND_URL=http://backend:8000
+```
+
+### Production Considerations
+
+1. **Security**
+   - Implement API authentication
+   - Use HTTPS with SSL certificates
+   - Set up rate limiting
+   - Validate all inputs
+
+2. **Performance**
+   - Enable caching (Redis)
+   - Use CDN for static assets
+   - Optimize database queries
+   - Implement connection pooling
+
+3. **Monitoring**
+   - Set up logging (ELK stack)
+   - Implement health checks
+   - Monitor API metrics
+   - Track error rates
+
+4. **Scaling**
+   - Use load balancer (nginx)
+   - Horizontal scaling with Kubernetes
+   - Database replication
+   - Queue system for async tasks
+
+### Environment Variables
+
+#### Backend Production
+```bash
+APP_NAME=Markdown-Flow
+DEBUG=false
+HOST=0.0.0.0
+PORT=8000
+DATABASE_URL=postgresql://user:pass@host/db
+REDIS_URL=redis://localhost:6379
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_API_KEY=sk-...
+LLM_MODEL=gpt-4
+LOG_LEVEL=INFO
+CORS_ORIGINS=["https://yourdomain.com"]
+```
+
+#### Frontend Production
+```bash
+NEXT_PUBLIC_PLAYGROUND_URL=https://api.yourdomain.com
+NEXT_PUBLIC_ANALYTICS_ID=UA-...
+```
+
+## API Client Examples
+
+### Python Client
+```python
+import requests
+from typing import Dict, List
+
+class MarkdownFlowClient:
+    def __init__(self, base_url: str = "http://localhost:8000"):
+        self.base_url = f"{base_url}/api/v1"
+
+    def extract_variables(self, content: str) -> List[str]:
+        response = requests.post(
+            f"{self.base_url}/extract-variables",
+            json={"content": content}
+        )
+        return response.json()["data"]["variables"]
+
+    def generate_stream(self, content: str, variables: Dict[str, str]):
+        response = requests.post(
+            f"{self.base_url}/generate",
+            json={
+                "content": content,
+                "variables": variables,
+                "segment_index": 0
+            },
+            stream=True
+        )
+
+        for line in response.iter_lines():
+            if line:
+                yield line.decode('utf-8')
+
+# Usage
+client = MarkdownFlowClient()
+variables = client.extract_variables("Hello {{name}}!")
+print(variables)  # ['name']
+```
+
+### JavaScript Client
+```javascript
+class MarkdownFlowClient {
+  constructor(baseUrl = 'http://localhost:8000') {
+    this.baseUrl = `${baseUrl}/api/v1`;
+  }
+
+  async extractVariables(content) {
+    const response = await fetch(`${this.baseUrl}/extract-variables`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    });
+    const data = await response.json();
+    return data.data.variables;
+  }
+
+  async* generateStream(content, variables) {
+    const response = await fetch(`${this.baseUrl}/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content,
+        variables,
+        segment_index: 0
+      })
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      yield decoder.decode(value);
+    }
+  }
+}
+
+// Usage
+const client = new MarkdownFlowClient();
+const variables = await client.extractVariables('Hello {{name}}!');
+console.log(variables); // ['name']
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Backend Won't Start
+- Check Python version: `python --version` (needs 3.8+)
+- Verify virtual environment is activated
+- Check port 8000 is not in use
+- Validate .env file configuration
+
+#### Frontend Build Errors
+- Clear Next.js cache: `rm -rf .next`
+- Delete node_modules and reinstall: `rm -rf node_modules && npm install`
+- Check Node version: `node --version` (needs 18+)
+
+#### LLM Connection Issues
+- Verify API key is valid
+- Check base URL is correct
+- Ensure network connectivity
+- Review rate limits
+
+#### SSE Streaming Not Working
+- Check CORS configuration
+- Verify SSE endpoint URL
+- Check browser console for errors
+- Ensure proper content-type headers
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Workflow
+1. Fork the repository
+2. Create feature branch
+3. Make changes with tests
+4. Run linters and tests
+5. Submit pull request
+
+### Code Style
+- Python: Follow PEP 8
+- JavaScript: Use ESLint configuration
+- Commits: Use conventional commits
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Support
+
+- GitHub Issues: Report bugs and request features
+- Discord: Join our community server
+- Email: support@markdown-flow.dev
+
+## Acknowledgments
+
+- FastAPI team for the excellent framework
+- Next.js team for the React framework
+- shadcn for the UI components
+- All contributors and users of Markdown-Flow
