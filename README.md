@@ -203,12 +203,18 @@
 git clone https://www.gitlink.org.cn/ai-shifu/vibe-coding-app.git
 cd demo
 
-# 2. 启动后端
-cd backend
+# 2. 修改配置文件
+# 将.env.example 文件复制为 .env
+# 修改 .env 文件中的内容
+LLM_BASE_URL="https://xxx"
+LLM_API_KEY="xxx"
+LLM_MODEL="xxx"
+
+# 3. 启动后端
 pip install -r requirements.txt
 python main.py
 
-# 3. 启动前端（新终端）
+# 4. 启动前端（新终端）
 cd frontend
 npm install
 npm run dev
