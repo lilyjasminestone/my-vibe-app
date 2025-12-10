@@ -13,7 +13,7 @@
 <div align="center">
 
 
-[📚 在线阅读地址](https://app.ai-shifu.cn/c/51ee98a2341940b3a96774b5cb9559cb) | [🎯 Demo 项目](https://www.gitlink.org.cn/ai-shifu/vibe-coding-app) | [💬 讨论交流](https://www.gitlink.org.cn/ai-shifu/vibe-coding-app/issues)
+[📚 在线阅读地址](https://app.ai-shifu.cn/c/51ee98a2341940b3a96774b5cb9559cb) | [🎯 Demo 项目](https://gitlink.org.cn/ai-shifu/vibe-coding-app/tree/master/demo) | [💬 讨论交流](https://www.gitlink.org.cn/ai-shifu/vibe-coding-app/issues)
 
 </div>
 
@@ -237,7 +237,7 @@ npm run dev
 ### 核心依赖项目
 
 - [MarkdownFlow 官网](https://markdownflow.ai) - MarkdownFlow 语法和生态
-- [Demo](https://www.gitlink.org.cn/ai-shifu/vibe-coding-app/Demo) - Demo 项目完整源码
+- [Demo](https://gitlink.org.cn/ai-shifu/vibe-coding-app/tree/master/demo) - Demo 项目完整源码
 - [markdown-flow-agent-py](https://www.gitlink.org.cn/ai-shifu/markdown-flow-agent-py) - Python 后端解析器
 - [remark-flow](https://www.gitlink.org.cn/ai-shifu/remark-flow) - 前端解析器
 - [markdown-flow-ui](https://www.gitlink.org.cn/ai-shifu/markdown-flow-ui) - React UI 组件库
