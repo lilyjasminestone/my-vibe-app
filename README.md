@@ -1,5 +1,5 @@
 <div align='center'>
-    <h1>借助 Vibe Coding 开发 AI 应用</h1>
+    <h1>用Markdown语法轻松开发 AI 应用</h1>
     <p><em>10 天掌握 AI 应用开发，让全栈工程师梦想触手可及</em></p>
 </div>
 
