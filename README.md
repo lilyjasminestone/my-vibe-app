@@ -193,7 +193,7 @@
 | Node.js | 16+ | [官网下载](https://nodejs.org/) |
 | Git | 最新版 | [官网下载](https://git-scm.com/) |
 | VS Code / Cursor | 最新版 | [VS Code](https://code.visualstudio.com/) \| [Cursor](https://cursor.sh/) |
-| LLM API Key | Claude / OpenAI | 详见 [1.4 环境准备](#) |
+| LLM API Key | Claude / OpenAI  |
 
 ### 快速启动 Demo 项目
 
@@ -246,12 +246,6 @@ npm run dev
 - [markdown-flow-agent-py](https://www.gitlink.org.cn/ai-shifu/markdown-flow-agent-py) - Python 后端解析器
 - [remark-flow](https://www.gitlink.org.cn/ai-shifu/remark-flow) - 前端解析器
 - [markdown-flow-ui](https://www.gitlink.org.cn/ai-shifu/markdown-flow-ui) - React UI 组件库
-
-### 学习资料
-
-- [Vibe Coding 介绍文章](#) - 深入理解 Vibe Coding 范式
-- [MarkdownFlow 语法速查表](#) - 快速查阅语法
-- [AI 辅助编程最佳实践](#) - 提升效率的技巧
 
 ---
 
