@@ -2,7 +2,7 @@ import os
 from typing import Optional
 
 from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # 支持指定环境变量文件
 env_file = os.getenv("ENV_FILE", ".env")
@@ -37,9 +37,12 @@ class Settings(BaseSettings):
     llm_model: str = "deepseek-ai/DeepSeek-V3"
     llm_temperature: float = 0.3
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    # Pydantic V2 配置
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore",  # 忽略 .env 中未定义的字段（如 dashscope_api_key）
+    )
 
 
 # 创建全局配置实例
