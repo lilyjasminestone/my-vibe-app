@@ -26,7 +26,6 @@ downloads/
 eggs/
 .eggs/
 # Python lib 目录，但保留前端 src/lib
-lib/
 !frontend/src/lib/
 lib64/
 parts/
