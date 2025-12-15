@@ -1,9 +1,16 @@
+import warnings
 from datetime import datetime
 
 import uvicorn
 
 from app.config.settings import settings
 from app.core import create_app
+
+
+
+# 抑制 asyncio "Task was destroyed but it is pending!" 警告
+# 这在 Windows 上（没有 uvloop）使用 SSE 流式响应时很常见
+warnings.filterwarnings("ignore", message=".*Task was destroyed but it is pending.*")
 
 # 创建应用实例
 app = create_app()

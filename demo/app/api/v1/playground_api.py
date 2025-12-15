@@ -135,6 +135,10 @@ async def generate_with_llm(
                 trace_id=trace_id,
                 output_language=final_output_language,
             ):
+                # 检测客户端是否断开连接
+                if await request.is_disconnected():
+                    break
+
                 if chunk.get("success", True):
                     # 使用新的 JSON 格式发送 SSE 消息
                     sse_message = chunk.get("sse_message")
