@@ -270,4 +270,3 @@ npm run dev
 📧 [交流方式](https://www.gitlink.org.cn/ai-shifu/vibe-coding-app/issues)
 
 Made with ❤️ by AI Shifu Team
-
