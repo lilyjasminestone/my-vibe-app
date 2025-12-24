@@ -3,9 +3,6 @@
     { "src": "package.json", "use": "@vercel/next" },
     { "src": "api_python/index.py", "use": "@vercel/python" }
   ],
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api_python/index" }
-  ],
   "headers": [
     {
       "source": "/api/:path*",
