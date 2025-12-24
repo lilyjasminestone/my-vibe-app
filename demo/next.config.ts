@@ -1,23 +1,35 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Temporarily disable static export to fix build issues
-  // Will re-enable after fixing SSR-related problems
+  // Use standalone output for better deployment compatibility
+  output: 'standalone',
+  
   images: {
     unoptimized: true,
   },
 
   // General configuration
   eslint: {
-    ignoreDuringBuilds: true, // Temporarily disabled to allow build
-    dirs: ['src'], // check src directory
+    ignoreDuringBuilds: true,
+    dirs: ['src'],
   },
   typescript: {
     ignoreBuildErrors: true,
   },
 
-  // Disable React strict mode to avoid double rendering
   reactStrictMode: false,
+
+  // Development rewrites
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: process.env.NODE_ENV === 'development' 
+          ? 'http://127.0.0.1:8000/api/:path*' 
+          : '/api/:path*',
+      },
+    ]
+  },
 };
 
 export default nextConfig;
