@@ -1,4 +1,4 @@
-export const API_BASE_URL = (process.env.NEXT_PUBLIC_PLAYGROUND_URL || '') + '/api/test'
+export const API_BASE_URL = (process.env.NEXT_PUBLIC_PLAYGROUND_URL || '') + '/api/v1'
 
 /**
  * Get common request headers
