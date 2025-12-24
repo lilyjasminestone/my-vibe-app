@@ -21,6 +21,22 @@ def create_app() -> FastAPI:
     # 添加日志中间件
     app.add_middleware(LoggingMiddleware)
 
+    # 调试中间件：拦截所有 POST 请求并返回 debug 信息
+    from fastapi.responses import JSONResponse
+    @app.middleware("http")
+    async def debug_middleware(request: Request, call_next):
+        if request.method == "POST":
+             # 仅拦截 playground 相关的请求，避免影响其他
+            if "playground" in request.url.path:
+                return JSONResponse({
+                    "debug": "Middleware intercepted POST",
+                    "path": request.url.path,
+                    "method": request.method,
+                    "base_url": str(request.base_url),
+                    "root_path": request.scope.get("root_path", ""),
+                })
+        return await call_next(request)
+
     # 配置CORS
     app.add_middleware(
         CORSMiddleware,
