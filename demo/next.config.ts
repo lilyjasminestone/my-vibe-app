@@ -12,20 +12,12 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
+    dirs: ['src'],
   },
 
   reactStrictMode: false,
 
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'development'
-          ? 'http://127.0.0.1:8000/api/:path*'
-          : '/api_python/index', // Rewrite to Vercel Function path
-      },
-    ];
-  },
+  // No rewrites. Let Vercel handle /api routing.
 };
 
 export default nextConfig;
