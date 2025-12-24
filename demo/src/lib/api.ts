@@ -1,4 +1,4 @@
-export const API_BASE_URL = (process.env.NEXT_PUBLIC_PLAYGROUND_URL || '') + '/api/v1'
+export const API_BASE_URL = (process.env.NEXT_PUBLIC_PLAYGROUND_URL || '') + '/api/test'
 
 /**
  * Get common request headers
@@ -58,7 +58,7 @@ export async function getMarkdownFlowInfo(
   request: MarkdownFlowInfoRequest,
 ): Promise<MarkdownFlowInfoResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/playground/markdownflow_info/`, {
+    const response = await fetch(`${API_BASE_URL}`, {
       method: 'POST',
       headers: getCommonHeaders(),
       body: JSON.stringify(request),
