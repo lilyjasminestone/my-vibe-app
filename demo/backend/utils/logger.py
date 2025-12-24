@@ -4,7 +4,7 @@ import sys
 from types import FrameType
 from typing import Any, Optional
 
-from app.config.settings import settings
+from backend.config.settings import settings
 from app.utils.trace import get_trace_id
 
 

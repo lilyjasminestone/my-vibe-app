@@ -9,10 +9,10 @@ from typing import Dict, Generator, List, Optional
 from markdown_flow import MarkdownFlow, ProcessMode
 from markdown_flow.llm import LLMResult
 
-from app.config.settings import settings
-from app.library.llm_provider import PlaygroundLLMProvider
-from app.library.llmclient import LLMClient
-from app.models.markdown_flow import (
+from backend.config.settings import settings
+from backend.library.llm_provider import PlaygroundLLMProvider
+from backend.library.llmclient import LLMClient
+from backend.models.markdown_flow import (
     Block,
     ChatMessage,
     LLMGenerateResponse,
@@ -20,7 +20,7 @@ from app.models.markdown_flow import (
     HistoryItem,
     HistoryResponse,
 )
-from app.models.document import SaveDocumentResponseData
+from backend.models.document import SaveDocumentResponseData
 import os
 import re
 from datetime import datetime
@@ -486,7 +486,7 @@ class PlayGroundService:
         """转换为 SSE 格式"""
         # 如果是结束标记，返回 text_end 类型
         if finished:
-            from app.models.markdown_flow import (
+            from backend.models.markdown_flow import (
                 SSEMessage,
                 SSEMessageType,
                 TextEndSSEData,
@@ -504,7 +504,7 @@ class PlayGroundService:
         if current_block and hasattr(current_block, "block_type"):
             from markdown_flow.enums import BlockType as MFBlockType
 
-            from app.models.markdown_flow import (
+            from backend.models.markdown_flow import (
                 ContentSSEData,
                 InteractionSSEData,
                 SSEMessage,
@@ -559,7 +559,7 @@ class PlayGroundService:
                 sse_message = SSEMessage(type=SSEMessageType.CONTENT, data=content_data)
         else:
             # 兜底：当无法确定块类型时，按内容处理
-            from app.models.markdown_flow import (
+            from backend.models.markdown_flow import (
                 ContentSSEData,
                 SSEMessage,
                 SSEMessageType,

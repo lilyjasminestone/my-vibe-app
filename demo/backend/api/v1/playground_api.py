@@ -9,16 +9,16 @@ from typing import TYPE_CHECKING
 from fastapi import APIRouter, Depends, Header, Request
 from fastapi.responses import StreamingResponse
 
-from app.models.base import BaseResponse
-from app.utils.trace import get_trace_id
+from backend.models.base import BaseResponse
+from backend.utils.trace import get_trace_id
 
 if TYPE_CHECKING:
-    from app.services.playground_service import PlayGroundService
+    from backend.services.playground_service import PlayGroundService
 
-from app.api.deps import get_playground_service
-from app.models.markdown_flow import MarkdownFlowInfoRequest, PlaygroundRunRequest
-from app.models.document import SaveDocumentRequest
-from app.utils.response import res
+from backend.api.deps import get_playground_service
+from backend.models.markdown_flow import MarkdownFlowInfoRequest, PlaygroundRunRequest
+from backend.models.document import SaveDocumentRequest
+from backend.utils.response import res
 
 playground_api_router = APIRouter(prefix="/playground", tags=["Playground Api"])
 

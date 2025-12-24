@@ -4,8 +4,8 @@ from typing import Callable
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.utils.logger import log
-from app.utils.trace import generate_trace_id, set_trace_id
+from backend.utils.logger import log
+from backend.utils.trace import generate_trace_id, set_trace_id
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):

@@ -1,8 +1,8 @@
 import json
 from typing import Any, Dict, List, Optional
 
-from app.library.llmclient import LLMClient
-from app.utils.logger import log
+from backend.library.llmclient import LLMClient
+from backend.utils.logger import log
 
 # 创建全局 LLM 客户端实例
 _llm_client = LLMClient()

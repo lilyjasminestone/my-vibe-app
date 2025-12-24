@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config.settings import settings
-from app.middleware.logging_middleware import LoggingMiddleware
+from backend.config.settings import settings
+from backend.middleware.logging_middleware import LoggingMiddleware
 
 
 def create_app() -> FastAPI:
@@ -31,7 +31,7 @@ def create_app() -> FastAPI:
     )
 
     # 注册路由
-    from app.api.v1.playground_api import playground_api_router
+    from backend.api.v1.playground_api import playground_api_router
 
     app.include_router(playground_api_router, prefix=settings.api_prefix)
 
@@ -39,7 +39,7 @@ def create_app() -> FastAPI:
     @app.on_event("shutdown")
     async def shutdown_event():
         # 清理全局 LLM 客户端
-        from app.services import llm_service, playground_service
+        from backend.services import llm_service, playground_service
 
         await llm_service.cleanup_llm_client()
         await playground_service.cleanup_playground_llm_client()

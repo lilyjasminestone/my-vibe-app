@@ -4,9 +4,9 @@ from typing import Any, Dict, List, Optional
 
 from openai import AsyncOpenAI
 
-from app.config.settings import settings
-
-logger = logging.getLogger(__name__)
+from backend.config.settings import settings
+from backend.models.base import BaseMessage, LLMConfig
+from backend.utils.logger import logger
 
 
 def _debug_print_messages(messages: List[Dict], title: str = "LLM Context"):

@@ -3,8 +3,8 @@ from datetime import datetime
 
 import uvicorn
 
-from app.config.settings import settings
-from app.core import create_app
+from backend.config.settings import settings
+from backend.core import create_app
 
 
 
