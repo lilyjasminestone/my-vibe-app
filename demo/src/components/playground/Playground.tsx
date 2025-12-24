@@ -2,6 +2,7 @@ import { Loader } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createInteractionParser } from 'remark-flow'
+import CopyButton from './CopyButton'
 
 // Dynamic import to avoid SSR issues
 const MarkdownFlow = dynamic(
@@ -114,6 +115,12 @@ const PlaygroundComponent: React.FC<PlaygroundComponentProps> = ({
     model: null,
   })
 
+  const fullContent = useMemo(() => {
+  return contentList
+    .map(item => item.content)
+    .filter(Boolean)
+    .join('\n\n')
+  }, [contentList])
 
   // 创建交互块解析器实例
   const interactionParser = createInteractionParser()
@@ -695,7 +702,11 @@ const PlaygroundComponent: React.FC<PlaygroundComponentProps> = ({
   }
 
   return (
-    <div style={styles}>
+    <div style={{ ...styles, position: 'relative' }}> {/* 添加 relative 定位 */}
+      
+      {/* 添加复制按钮 */}
+      <CopyButton content={fullContent} />
+
       <MarkdownFlow
         initialContentList={getAdaptedContentList()}
         onSend={handleSend}
@@ -704,6 +715,7 @@ const PlaygroundComponent: React.FC<PlaygroundComponentProps> = ({
       />
     </div>
   )
+
 }
 
 export default PlaygroundComponent

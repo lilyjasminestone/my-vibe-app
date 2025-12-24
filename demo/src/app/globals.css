@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --primary: #3b82f6;
+  --primary: #10b981;
   --primary-foreground: #ffffff;
   --border: #e2e8f0;
   --muted: #f8fafc;
@@ -12,6 +12,19 @@
   --popover-foreground: #171717;
   --accent: #f1f5f9;
   --accent-foreground: #171717;
+
+  /* Override markdown-flow-ui blue variables with emerald (green) */
+  --color-blue-50: #ecfdf5;
+  --color-blue-100: #d1fae5;
+  --color-blue-200: #a7f3d0;
+  --color-blue-300: #6ee7b7;
+  --color-blue-400: #34d399;
+  --color-blue-500: #10b981;
+  --color-blue-600: #059669;
+  --color-blue-700: #047857;
+  --color-blue-800: #065f46;
+  --color-blue-900: #064e3b;
+  --color-blue-950: #022c22;
 }
 
 @theme {
@@ -28,6 +41,19 @@
   --color-accent-foreground: var(--accent-foreground);
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+
+  /* Override markdown-flow-ui blue variables with emerald (green) */
+  --color-blue-50: #ecfdf5;
+  --color-blue-100: #d1fae5;
+  --color-blue-200: #a7f3d0;
+  --color-blue-300: #6ee7b7;
+  --color-blue-400: #34d399;
+  --color-blue-500: #10b981;
+  --color-blue-600: #059669;
+  --color-blue-700: #047857;
+  --color-blue-800: #065f46;
+  --color-blue-900: #064e3b;
+  --color-blue-950: #022c22;
 }
 
 @layer base {
@@ -38,16 +64,16 @@
   /* Fix abrupt black border in focus state */
   *:focus {
     outline: none;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
   }
 
   /* Special handling for focus state of input boxes and text areas */
   input:focus,
   textarea:focus,
   [contenteditable]:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
   }
 
   /* Disable font ligatures for monospace font to show original characters */

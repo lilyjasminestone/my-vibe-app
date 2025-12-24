@@ -331,3 +331,22 @@ class SSEMessage(BaseModel):
 
     class Config:
         use_enum_values = True
+
+
+# ===== 历史记录相关模型 =====
+
+
+class HistoryItem(BaseModel):
+    """历史记录项模型"""
+
+    id: int = Field(..., description="记录ID")
+    created_at: str = Field(..., description="创建时间")
+    content_preview: str = Field(..., description="内容预览（前50字）")
+    block_count: int = Field(..., description="生成的区块数量")
+
+
+class HistoryResponse(BaseModel):
+    """历史记录列表响应模型"""
+
+    history: List[HistoryItem] = Field(..., description="历史记录列表")
+    total: int = Field(..., description="总记录数")

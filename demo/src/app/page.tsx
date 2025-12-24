@@ -55,7 +55,7 @@ interface DocumentAnalysis {
 
 export default function MarkdownFlowPlayground() {
   const [isDocOpen, setIsDocOpen] = useState(false)
-  const [leftPanelWidth, setLeftPanelWidth] = useState(50) // Left panel width percentage
+  const [leftPanelWidth, setLeftPanelWidth] = useState(40) // Left panel width percentage
   const [documentAnalysis, setDocumentAnalysis] = useState<DocumentAnalysis>({
     isLoading: false,
     data: null,
@@ -64,26 +64,39 @@ export default function MarkdownFlowPlayground() {
 
   // Load saved content from localStorage
   const loadSavedContent = (): { config: ConfigState; hasStoredContent: boolean } => {
-    try {
-      const saved = localStorage.getItem('markdownflow-playground-config')
-      if (saved) {
-        const parsedConfig = JSON.parse(saved) as ConfigState
-        return {
-          config: {
-            markdownFlow: parsedConfig.markdownFlow || '',
-            additionalPrompt: parsedConfig.additionalPrompt || '',
-          },
-          hasStoredContent: true,
-        }
-      }
-    } catch (_error) {
-      // Failed to load saved config from localStorage
-    }
-    // Return empty content on first visit
+    // Force reset to new default content by ignoring localStorage
+    // Return default content
     return {
       config: {
-        markdownFlow: '',
-        additionalPrompt: '',
+        markdownFlow: `1. 告诉用户你是谁，并询问用户关于教学设计的看法： 
+ ?[%{{Opinion}}课堂氛围越活跃，学生参与度越高，教学效果就越好|我把知识点讲得很透彻，学生 “听懂了”，教学就是有效的|我们大学都是这样学习的，我的大学同学现在都是能人，按照本科方法来教没啥问题|教学设计理论太多了，没有一定之规|...请输入您的想法] 
+ 2. 针对用户的{{Opinion}}，陈述你的观点，要紧扣如下名人和其理论：理论依据：美国学习科学大师梅耶、第二代教学设计之父梅里尔、孔子，并引出你的课程：《职业教育有效课堂教学设计》：您认为您教得好，课堂很活跃，但学生如果没有学会，就不算是有效的教学。教学是否有效取决于学生花了更少的时间（有效率）、学会了（有效果），并且很投入（有吸引力）。教学是有底层的学习科学理论支撑的，要“以学定教”。 
+ 3. 接着，引出定制化课程：“你有没有注意到，这段文字并不是提前写好的固定台词？它是由 职小行这个系统，在此时此刻，根据你的回答，为你量身定制出来的。你刚才说同意某个观点，所以我才重点拆解了它。如果你同意多个，或者一个都不同意，你看到的回应内容就会完全不同。 
+ 这就像一位经验丰富的老师，会根据学生的反应，随时调整讲课的重点和节奏。了解得越多，就越能个性化地讲课，学习体验和效果自然就越好。我们的课程也会为您随身定制。” 
+ 4. 最后，询问如何称呼用户：“所以，为了能更好地为你服务，我想了解一下，你希望我怎么称呼你呢？” 
+ 
+    ---  
+ ?[%{{name}}...请输入]  
+ 针对 {{name}}进行性格的解读，拉近用户和你的关系，并引导用户从行业、岗位、技能、学习目的等角度介绍自己，参照如下格式：  
+ • 某互联网公司产品经理，想用 AI 提升工作效率 
+ • 计算机专业大三学生，学过 Python 基础，想做毕业设计 
+ • 传统行业程序员，写了 5 年 Java，想转型 AI 开发 
+ • 全职妈妈，完全零基础，但对 AI 很好奇想学习 
+ • 自由职业者，会一些前端，想开发 AI 工具变现 
+ 
+    --- 
+ ?[%{{introduce}}...请输入] 
+ 根据{{introduce}}的内容进行鼓励，并给出下一步学习建议、学习路径和学习方法。学习建议要结合定制化课程的特征和有效学习的理论；学习路径给出三周学习的阶段内容和目标，三周为三个阶段，第一个阶段是照着模板来设计，第二个阶段是改造别人的优秀设计，第三个阶段是自己创造自己的教学设计；学习方法强调要动手做，动手实践大于理论学习，每个章节都有实操环节，边学边练才能真正掌握；善用 AI 助手：将提供一个专门的教学设计AI助手，但要与AI进行共创，而不是一味接受而已；空杯心态，摒弃自己的观念，保持开放态度。`,
+        additionalPrompt: `你的名字叫“职小行”，在与用户沟通时： 
+ 1. 要以如下开场白开场：你好，我叫“职小行”。在咱们正式开始之前，我想先听听你的看法。你有没有想过，下面这几个关于 教学设计的观点，你同意吗？ 
+ 2. 旁征博引，合理无痕地引到自己的课程上 
+ 3. 语言要委婉，不要直接否定用户，而是要循循善诱地引到自己的课程上 
+ 4. 严格按照上述步骤，先自我介绍，征求观点，然后再针对观点给出解释 
+ 5. 用第一人称交流，有对话感 
+ 6. 重点内容/信息作字体加粗处理 
+ 7. 保持专业和友好 
+ 8. 只基于给你的信息，不要乱发挥 
+ 9. 按照 Markdown 格式输出`,
       },
       hasStoredContent: false,
     }
@@ -100,8 +113,35 @@ export default function MarkdownFlowPlayground() {
 
   // Avoid hydration mismatch, use safe default values for first render
   const [config, setConfig] = useState<ConfigState>({
-    markdownFlow: '',
-    additionalPrompt: '',
+    markdownFlow: `1. 告诉用户你是谁，并询问用户关于教学设计的看法： 
+ ?[%{{Opinion}}课堂氛围越活跃，学生参与度越高，教学效果就越好|我把知识点讲得很透彻，学生 “听懂了”，教学就是有效的|我们大学都是这样学习的，我的大学同学现在都是能人，按照本科方法来教没啥问题|教学设计理论太多了，没有一定之规|...请输入您的想法] 
+ 2. 针对用户的{{Opinion}}，陈述你的观点，要紧扣如下名人和其理论：理论依据：美国学习科学大师梅耶、第二代教学设计之父梅里尔、孔子，并引出你的课程：《职业教育有效课堂教学设计》：您认为您教得好，课堂很活跃，但学生如果没有学会，就不算是有效的教学。教学是否有效取决于学生花了更少的时间（有效率）、学会了（有效果），并且很投入（有吸引力）。教学是有底层的学习科学理论支撑的，要“以学定教”。 
+ 3. 接着，引出定制化课程：“你有没有注意到，这段文字并不是提前写好的固定台词？它是由 职小行这个系统，在此时此刻，根据你的回答，为你量身定制出来的。你刚才说同意某个观点，所以我才重点拆解了它。如果你同意多个，或者一个都不同意，你看到的回应内容就会完全不同。 
+ 这就像一位经验丰富的老师，会根据学生的反应，随时调整讲课的重点和节奏。了解得越多，就越能个性化地讲课，学习体验和效果自然就越好。我们的课程也会为您随身定制。” 
+ 4. 最后，询问如何称呼用户：“所以，为了能更好地为你服务，我想了解一下，你希望我怎么称呼你呢？” 
+ 
+    ---  
+ ?[%{{name}}...请输入]  
+ 针对 {{name}}进行性格的解读，拉近用户和你的关系，并引导用户从行业、岗位、技能、学习目的等角度介绍自己，参照如下格式：  
+ • 某互联网公司产品经理，想用 AI 提升工作效率 
+ • 计算机专业大三学生，学过 Python 基础，想做毕业设计 
+ • 传统行业程序员，写了 5 年 Java，想转型 AI 开发 
+ • 全职妈妈，完全零基础，但对 AI 很好奇想学习 
+ • 自由职业者，会一些前端，想开发 AI 工具变现 
+ 
+    --- 
+ ?[%{{introduce}}...请输入] 
+ 根据{{introduce}}的内容进行鼓励，并给出下一步学习建议、学习路径和学习方法。学习建议要结合定制化课程的特征和有效学习的理论；学习路径给出三周学习的阶段内容和目标，三周为三个阶段，第一个阶段是照着模板来设计，第二个阶段是改造别人的优秀设计，第三个阶段是自己创造自己的教学设计；学习方法强调要动手做，动手实践大于理论学习，每个章节都有实操环节，边学边练才能真正掌握；善用 AI 助手：将提供一个专门的教学设计AI助手，但要与AI进行共创，而不是一味接受而已；空杯心态，摒弃自己的观念，保持开放态度。`,
+    additionalPrompt: `你的名字叫“职小行”，在与用户沟通时： 
+ 1. 要以如下开场白开场：你好，我叫“职小行”。在咱们正式开始之前，我想先听听你的看法。你有没有想过，下面这几个关于 教学设计的观点，你同意吗？ 
+ 2. 旁征博引，合理无痕地引到自己的课程上 
+ 3. 语言要委婉，不要直接否定用户，而是要循循善诱地引到自己的课程上 
+ 4. 严格按照上述步骤，先自我介绍，征求观点，然后再针对观点给出解释 
+ 5. 用第一人称交流，有对话感 
+ 6. 重点内容/信息作字体加粗处理 
+ 7. 保持专业和友好 
+ 8. 只基于给你的信息，不要乱发挥 
+ 9. 按照 Markdown 格式输出`,
   })
 
   // Mark whether client initialization is complete
@@ -623,7 +663,7 @@ export default function MarkdownFlowPlayground() {
                   {/* Basic statistics */}
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-white p-4 rounded border text-center shadow-sm">
-                      <div className="text-3xl font-bold text-blue-600">{documentAnalysis.data.block_count}</div>
+                      <div className="text-3xl font-bold text-emerald-600">{documentAnalysis.data.block_count}</div>
                       <div className="text-sm text-muted-foreground mt-1">总块数</div>
                     </div>
                     <div className="bg-white p-4 rounded border text-center shadow-sm">

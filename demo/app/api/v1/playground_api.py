@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 from app.api.deps import get_playground_service
 from app.models.markdown_flow import MarkdownFlowInfoRequest, PlaygroundRunRequest
+from app.models.document import SaveDocumentRequest
 from app.utils.response import res
 
 playground_api_router = APIRouter(prefix="/playground", tags=["Playground Api"])
@@ -154,11 +155,14 @@ async def generate_with_llm(
                         yield f"data: [ERROR] {error_msg} - 详细信息: {details}\n\n"
                     else:
                         yield f"data: [ERROR] {error_msg}\n\n"
+                    yield "data: {\"type\":\"text_end\",\"data\":{\"mdflow\":\"\"}}\n\n"
                     break
         except ValueError as e:
             yield f"data: [ERROR] {str(e)}\n\n"
+            yield "data: {\"type\":\"text_end\",\"data\":{\"mdflow\":\"\"}}\n\n"
         except Exception as e:
             yield f"data: [ERROR] 生成失败: {str(e)}\n\n"
+            yield "data: {\"type\":\"text_end\",\"data\":{\"mdflow\":\"\"}}\n\n"
 
         # 不再发送 [DONE] 标记，因为 text_end 类型已经表示结束
 
@@ -348,3 +352,55 @@ async def generate_complete(
         return res.error(message=str(e))
     except Exception as e:
         return res.error(message=f"生成失败: {str(e)}")
+
+
+@playground_api_router.get(
+    "/history",
+    response_model=BaseResponse,
+    summary="获取历史记录",
+)
+async def get_history(
+    limit: int = 5,
+    service: "PlayGroundService" = Depends(get_playground_service),
+) -> BaseResponse:
+    """
+    获取最近的生成历史记录（内存存储）
+    
+    **请求参数：**
+    - **limit** (integer, 可选): 返回记录数量，默认 5 条
+    
+    **响应数据 (BaseResponse.data)：**
+    - **history** (array<HistoryItem>): 历史记录列表
+    - **total** (integer): 总记录数
+    """
+    try:
+        result = service.get_history(limit=limit)
+        return res.info(data=result.model_dump())
+    except Exception as e:
+        return res.error(message=f"获取历史记录失败: {str(e)}")
+
+
+@playground_api_router.post(
+    "/save",
+    response_model=BaseResponse,
+    summary="保存文档",
+)
+async def save_document(
+    request: SaveDocumentRequest,
+    service: "PlayGroundService" = Depends(get_playground_service),
+) -> BaseResponse:
+    """
+    保存 MarkdownFlow 文档
+    
+    **请求参数 (SaveDocumentRequest)：**
+    - **title** (string, 必填): 文档标题
+    - **content** (string, 必填): Markdown-Flow 内容
+    
+    **响应数据 (BaseResponse.data)：**
+    - **file_path** (string): 保存的文件路径
+    """
+    try:
+        result = service.save_document(title=request.title, content=request.content)
+        return res.info(message="文档保存成功", data=result.model_dump())
+    except Exception as e:
+        return res.error(message=f"保存失败: {str(e)}")

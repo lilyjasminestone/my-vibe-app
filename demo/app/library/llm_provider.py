@@ -275,6 +275,7 @@ class PlaygroundLLMProvider(LLMProvider):
                                     exception_queue.put(
                                         ValueError(f"LLM 流式调用失败: {error_msg}")
                                     )
+                                    result_queue.put(None)
                                     break
                             result_queue.put(None)  # 结束标记
 
@@ -283,6 +284,7 @@ class PlaygroundLLMProvider(LLMProvider):
                     except Exception as e:
                         exception_queue.put(e)
                         result_queue.put(None)
+                        return
 
                 thread = threading.Thread(target=run_async_stream)
                 thread.start()

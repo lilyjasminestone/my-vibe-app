@@ -118,9 +118,9 @@ const PlaygroundWrapper: React.FC<PlaygroundWrapperProps> = ({
       </div> : null}
 
       {/* Loading status display */}
-      {isRunning ? <div className="px-3 py-2 border-b bg-blue-50">
-        <span className="text-xs text-blue-600 flex items-center gap-1">
-          <div className="w-3 h-3 border border-blue-300 border-t-blue-600 rounded-full animate-spin" />
+      {isRunning ? <div className="px-3 py-2 border-b bg-emerald-50">
+        <span className="text-xs text-emerald-600 flex items-center gap-1">
+          <div className="w-3 h-3 border border-emerald-300 border-t-emerald-600 rounded-full animate-spin" />
           运行中...
         </span>
       </div> : null}
@@ -144,7 +144,7 @@ const PlaygroundWrapper: React.FC<PlaygroundWrapperProps> = ({
         /> : null}
         {isRunning ? <div className="flex items-center justify-center h-96 text-muted-foreground">
           <div className="text-center">
-            <div className="w-8 h-8 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-2" />
+            <div className="w-8 h-8 border-2 border-emerald-300 border-t-emerald-600 rounded-full animate-spin mx-auto mb-2" />
             <p>准备中...</p>
           </div>
         </div> : null}

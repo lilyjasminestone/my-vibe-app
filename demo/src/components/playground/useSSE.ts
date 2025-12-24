@@ -49,6 +49,7 @@ const useSSE = <T = unknown>(
     mountedRef.current && connectionStateRef.current !== 'closed'
 
   const connectInternal = useCallback(async () => {
+    // If it's connecting, connected, or component is unmounted, do not proceed
     if (
       connectionStateRef.current === 'connecting' ||
       connectionStateRef.current === 'connected' ||
@@ -86,13 +87,26 @@ const useSSE = <T = unknown>(
         },
         signal: abortController.signal,
         openWhenHidden: true,
-        onopen: async () => {
-          if (isActive()) {
-            connectionStateRef.current = 'connected'
-            setIsLoading(false)
-            setError(null)
-            retryCountRef.current = 0
-            options.onStart?.(newIndex)
+        onopen: async (response) => {
+          if (response.ok && response.headers.get('content-type')?.includes('text/event-stream')) {
+            if (isActive()) {
+              connectionStateRef.current = 'connected'
+              setIsLoading(false)
+              setError(null)
+              retryCountRef.current = 0
+              options.onStart?.(newIndex)
+            }
+          } else if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+            // Client-side errors (4xx) should not retry, unless it's rate limiting (429)
+            if (isActive()) {
+              connectionStateRef.current = 'error'
+              setIsLoading(false)
+              // Read error message from body if possible
+              const errorText = await response.text().catch(() => 'Unknown error')
+              setError(new Error(`Server Error (${response.status}): ${errorText}`))
+            }
+            // Stop retrying for client errors
+            throw new Error(`Fatal Error: ${response.status}`)
           }
         },
         onmessage: event => {
@@ -104,12 +118,8 @@ const useSSE = <T = unknown>(
               // Check if this is the finish message
               if (messageData.type === FINISHED_TYPE) {
                 options.onFinish?.(finalDataRef.current, newIndex, null)
-                connectionStateRef.current = 'closed'
-                retryCountRef.current = 0
-                if (abortControllerRef.current) {
-                  abortControllerRef.current.abort()
-                  abortControllerRef.current = null
-                }
+                // Do not close connection completely, just mark current stream as done
+                // connectionStateRef.current = 'closed' // Don't close here, wait for next events or explicit close
                 if (mountedRef.current) {
                   setIsLoading(false)
                 }
@@ -143,13 +153,26 @@ const useSSE = <T = unknown>(
           }
         },
         onclose: () => {
+          // Server closed connection
           if (isActive()) {
+            // Only mark disconnected if we didn't receive a finish message or if we want to reconnect
+            // If we received FINISHED_TYPE, we might want to stay in a "done" state rather than "disconnected"
+            // But for now, let's stick to disconnected to allow potential reconnections if logic dictates
             connectionStateRef.current = 'disconnected'
             setIsLoading(false)
           }
         },
         onerror: err => {
           if (isActive()) {
+            // If it was a fatal error thrown in onopen, don't retry
+            if (err.message && err.message.startsWith('Fatal Error')) {
+               connectionStateRef.current = 'error'
+               setError(err)
+               setIsLoading(false)
+               // Stop retrying
+               throw err // Rethrow to stop fetchEventSource
+            }
+
             connectionStateRef.current = 'error'
             setError(err)
             setIsLoading(false)
@@ -162,7 +185,12 @@ const useSSE = <T = unknown>(
               }, retryDelay)
             }
           }
-          throw err
+          // Re-throw to let fetchEventSource handle it (it usually retries unless we throw inside onopen)
+          // But since we handle retries manually with setTimeout above for better control, we might want to suppress it?
+          // fetchEventSource's default behavior is to retry.
+          // Let's rely on our manual retry logic or fetchEventSource's.
+          // Mixing them might be confusing. Let's trust fetchEventSource for connection errors.
+          // But our manual retry logic handles application-level "error" state updates.
         },
       })
     } catch (err) {
@@ -170,13 +198,16 @@ const useSSE = <T = unknown>(
         connectionStateRef.current = 'error'
         setError(err as Error)
         setIsLoading(false)
-        if (retryCountRef.current < maxRetries && isActive()) {
-          retryCountRef.current++
-          setTimeout(() => {
-            if (isActive()) {
-              connectInternal()
+        // Only retry if it wasn't a fatal error
+        if ((err as Error).message && !(err as Error).message.startsWith('Fatal Error')) {
+            if (retryCountRef.current < maxRetries && isActive()) {
+              retryCountRef.current++
+              setTimeout(() => {
+                if (isActive()) {
+                  connectInternal()
+                }
+              }, retryDelay)
             }
-          }, retryDelay)
         }
       }
     }

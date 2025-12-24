@@ -17,7 +17,13 @@ from app.models.markdown_flow import (
     ChatMessage,
     LLMGenerateResponse,
     MarkdownFlowInfoResponse,
+    HistoryItem,
+    HistoryResponse,
 )
+from app.models.document import SaveDocumentResponseData
+import os
+import re
+from datetime import datetime
 
 # 创建共享的 LLM 客户端实例，避免每次请求都创建新的客户端
 _shared_llm_client = LLMClient()
@@ -30,10 +36,42 @@ async def cleanup_playground_llm_client():
 
 class PlayGroundService:
     """PlayGround 服务类"""
+    
+    # 内存中存储历史记录 (类变量，所有实例共享)
+    _history_store: List[HistoryItem] = []
+    _history_id_counter: int = 1
 
     def __init__(self):
         self.llm_client = _shared_llm_client
         self.llm_provider = PlaygroundLLMProvider(self.llm_client)
+
+    def _add_history(self, content: str, block_count: int):
+        """添加历史记录"""
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        content_preview = content[:50] + "..." if len(content) > 50 else content
+        
+        item = HistoryItem(
+            id=PlayGroundService._history_id_counter,
+            created_at=now,
+            content_preview=content_preview,
+            block_count=block_count
+        )
+        
+        # 添加到列表开头
+        PlayGroundService._history_store.insert(0, item)
+        PlayGroundService._history_id_counter += 1
+        
+        # 保持最多 100 条记录
+        if len(PlayGroundService._history_store) > 100:
+            PlayGroundService._history_store = PlayGroundService._history_store[:100]
+
+    def get_history(self, limit: int = 5) -> HistoryResponse:
+        """获取最近的历史记录"""
+        history = PlayGroundService._history_store[:limit]
+        return HistoryResponse(
+            history=history,
+            total=len(PlayGroundService._history_store)
+        )
 
     def generate_with_llm(
         self,
@@ -96,6 +134,12 @@ class PlayGroundService:
             interaction_prompt=interaction_prompt,
             interaction_error_prompt=interaction_error_prompt,
         )
+        
+        # 记录历史 (仅当不是单独处理某个块时记录，这里简单判断如果 block_index 为 0 则记录)
+        # 或者更合理的逻辑是：每次有实质性内容生成时记录。
+        # 这里简化处理：在开始处理时记录一次
+        if block_index == 0:
+            self._add_history(content, mf.block_count)
 
         # 设置输出语言（API层已固定为"Simplified Chinese"）
         if output_language:
@@ -351,6 +395,47 @@ class PlayGroundService:
             interaction_blocks=interaction_blocks,
             content_blocks=content_blocks,
         )
+
+    def save_document(self, title: str, content: str) -> SaveDocumentResponseData:
+        """
+        保存文档
+
+        Args:
+            title: 文档标题
+            content: 文档内容
+
+        Returns:
+            SaveDocumentResponseData: 保存结果
+        """
+        # 1. 确保目录存在
+        # 使用 demo 根目录下的 saved_documents
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        save_dir = os.path.join(base_dir, "saved_documents")
+        os.makedirs(save_dir, exist_ok=True)
+
+        # 2. 处理文件名（去除非法字符）
+        safe_title = re.sub(r'[\\/*?:"<>|]', "", title)
+        # 如果标题为空（被过滤完了），使用默认名
+        if not safe_title:
+            safe_title = "untitled"
+
+        filename = f"{safe_title}.md"
+        file_path = os.path.join(save_dir, filename)
+
+        # 3. 处理重名（自动添加序号）
+        counter = 1
+        base_name = safe_title
+        while os.path.exists(file_path):
+            safe_title = f"{base_name}_{counter}"
+            filename = f"{safe_title}.md"
+            file_path = os.path.join(save_dir, filename)
+            counter += 1
+
+        # 4. 写入文件
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(content)
+
+        return SaveDocumentResponseData(file_path=file_path)
 
     def _convert_context_to_dict(
         self, context: List[ChatMessage]

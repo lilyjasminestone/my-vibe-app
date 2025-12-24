@@ -197,12 +197,14 @@ class LLMClient:
             completion_start_time = None
 
             # 使用OpenAI客户端创建流式响应
+            # 添加 timeout 防止请求卡死
             stream = await self.client.chat.completions.create(
                 model=model,
                 messages=messages,
                 max_tokens=4096,
                 temperature=temperature,
                 stream=True,
+                timeout=60.0 # 60s timeout
             )
 
             async for chunk in stream:
