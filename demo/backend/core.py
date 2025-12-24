@@ -43,6 +43,21 @@ def create_app() -> FastAPI:
         if stripped_prefix:
             app.include_router(playground_api_router, prefix=stripped_prefix)
 
+    # Debug: Catch-all route to debug path issues
+    from fastapi import Request
+    @app.post("/{full_path:path}")
+    async def catch_all(full_path: str, request: Request):
+        return {
+            "message": "Debug: Path not found in router but caught by catch-all",
+            "path": full_path,
+            "method": request.method,
+            "headers": dict(request.headers),
+            "base_url": str(request.base_url),
+            "root_path": request.scope.get("root_path", ""),
+            "path_info": request.scope.get("path", "")
+        }
+
+
 
     # 关闭事件
     @app.on_event("shutdown")
