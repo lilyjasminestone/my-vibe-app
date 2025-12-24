@@ -33,7 +33,16 @@ def create_app() -> FastAPI:
     # 注册路由
     from backend.api.v1.playground_api import playground_api_router
 
+    # 注册标准的 API 前缀 (通常是 /api/v1)
     app.include_router(playground_api_router, prefix=settings.api_prefix)
+
+    # 额外注册一个 /v1 前缀，以防 Vercel 自动剥离了 /api
+    # 如果 settings.api_prefix 已经是 /v1，这里会重复，但 FastAPI 允许 (只是多了一个路由入口)
+    if settings.api_prefix.startswith("/api"):
+        stripped_prefix = settings.api_prefix.replace("/api", "", 1)
+        if stripped_prefix:
+            app.include_router(playground_api_router, prefix=stripped_prefix)
+
 
     # 关闭事件
     @app.on_event("shutdown")
