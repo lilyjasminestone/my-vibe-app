@@ -108,6 +108,13 @@ class PlaygroundLLMProvider(LLMProvider):
         # Build metadata
         metadata = self._build_metadata()
 
+        # Strict system guard
+        strict_guard = {
+            "role": "system",
+            "content": "严格遵循以上系统提示词与文档提示词，不增删改含义，不改变顺序；全部用简体中文；不要引导下一步或提出附加问题；仅按步骤输出。"
+        }
+        context = ([strict_guard] + context) if context else [strict_guard]
+
         # 同步包装异步调用
         import asyncio
 
@@ -233,6 +240,13 @@ class PlaygroundLLMProvider(LLMProvider):
 
         # Build metadata
         metadata = self._build_metadata()
+
+        # Strict system guard
+        strict_guard = {
+            "role": "system",
+            "content": "严格遵循以上系统提示词与文档提示词，不增删改含义，不改变顺序；全部用简体中文；不要引导下一步或提出附加问题；仅按步骤输出。"
+        }
+        context = ([strict_guard] + context) if context else [strict_guard]
 
         # 同步包装异步生成器
         import asyncio
