@@ -58,7 +58,7 @@ export async function getMarkdownFlowInfo(
   request: MarkdownFlowInfoRequest,
 ): Promise<MarkdownFlowInfoResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}`, {
+    const response = await fetch(`${API_BASE_URL}/playground/markdownflow_info`, {
       method: 'POST',
       headers: getCommonHeaders(),
       body: JSON.stringify(request),

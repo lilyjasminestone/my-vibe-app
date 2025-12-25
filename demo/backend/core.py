@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.config.settings import settings
@@ -16,6 +16,7 @@ def create_app() -> FastAPI:
         debug=settings.debug,
         docs_url="/docs",
         redoc_url="/redoc",
+        root_path=settings.root_path,
     )
 
     # 添加日志中间件
@@ -60,7 +61,6 @@ def create_app() -> FastAPI:
             app.include_router(playground_api_router, prefix=stripped_prefix)
 
     # Debug: Catch-all route to debug path issues
-    from fastapi import Request
     @app.post("/{full_path:path}")
     async def catch_all(full_path: str, request: Request):
         return {

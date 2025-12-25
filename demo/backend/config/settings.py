@@ -24,6 +24,11 @@ class Settings(BaseSettings):
 
     # API 配置
     api_prefix: str = "/api/v1"
+    # FastAPI 部署根路径（用于 Vercel 等子路径挂载）
+    root_path: str = os.getenv(
+        "FASTAPI_ROOT_PATH",
+        "/api/test" if os.getenv("VERCEL") else ""
+    )
 
     # 跨域配置
     cors_origins: list = ["*"]
