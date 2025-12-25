@@ -5,7 +5,7 @@ from types import FrameType
 from typing import Any, Optional
 
 from backend.config.settings import settings
-from app.utils.trace import get_trace_id
+from backend.utils.trace import get_trace_id
 
 
 class TraceFilter(logging.Filter):

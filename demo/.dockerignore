@@ -1,0 +1,9 @@
+node_modules
+.next
+saved_documents
+.git
+.gitignore
+.DS_Store
+*.log
+.env*
+vercel.json

@@ -1,8 +1,8 @@
 from typing import Any
 
 from backend.models.base import BaseResponse
-from app.utils.status_codes import BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED
-from app.utils.trace import get_trace_context
+from backend.utils.status_codes import BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED
+from backend.utils.trace import get_trace_context
 
 
 def success_response(

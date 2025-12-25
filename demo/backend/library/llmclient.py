@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Optional
 from openai import AsyncOpenAI
 
 from backend.config.settings import settings
-from backend.models.base import BaseMessage, LLMConfig
 from backend.utils.logger import logger
 
 
