@@ -1,15 +1,27 @@
-from http.server import BaseHTTPRequestHandler
-import json
+import os
+import sys
+import traceback
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
-class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps({"status": "ok", "message": "Test API is working"}).encode('utf-8'))
+# Add the current directory to path to find main.py
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-    def do_POST(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps({"status": "ok", "message": "Test API POST is working"}).encode('utf-8'))
+# Try to import the main app
+try:
+    from main import app
+except Exception as e:
+    # If main fails (e.g. missing env vars), create a dummy app that reports the error
+    app = FastAPI()
+    error_msg = traceback.format_exc()
+    
+    @app.api_route("/{path_name:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"])
+    async def catch_all(path_name: str):
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "FastAPI Initialization Failed",
+                "detail": "The application failed to start. This is likely due to missing environment variables or dependencies.",
+                "traceback": error_msg
+            }
+        )
